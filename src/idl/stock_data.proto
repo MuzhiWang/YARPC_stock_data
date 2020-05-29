@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package muzwang.stock_data;
+
+message TestRequest {
+    string value = 1;
+}
+
+message TestResponse {
+    string value = 1;
+}
+
+service StockData {
+    rpc Test(TestRequest) returns (TestResponse) {}
+}

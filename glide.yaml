@@ -1,0 +1,20 @@
+package: StockData
+import:
+- package: go.uber.org/yarpc
+  version: ^1.36.0
+  subpackages:
+  - transport/grpc
+- package: go.uber.org/fx
+  version: ^1.4.0
+- package: google.golang.org/grpc
+  version: ^1.19.0
+- package: go.uber.org/config
+  version: ^1.0.0
+- package: github.com/gogo/protobuf
+  version: ^1.2.0
+  subpackages:
+  - protoc-gen-gogoslick
+- package: github.com/uber-go/mapdecode
+  version: ^1.0.0
+- package: github.com/uber/tchannel-go
+  version: =1.17.0

@@ -1,0 +1,4 @@
+yarpc:
+  inbounds:
+    grpc:
+      address: "localhost:8080"
