@@ -1,4 +1,4 @@
 yarpc:
   inbounds:
     grpc:
-      address: "localhost:8080"
+      address: "localhost:5432"

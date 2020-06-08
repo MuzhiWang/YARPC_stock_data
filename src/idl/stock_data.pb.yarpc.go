@@ -149,8 +149,8 @@ type FxStockDataYARPCProceduresParams struct {
 type FxStockDataYARPCProceduresResult struct {
 	fx.Out
 
-	Procedures     []transport.Procedure `group:"yarpcfx"`
-	ReflectionMeta reflection.ServerMeta `group:"yarpcfx"`
+	Procedures     []transport.Procedure
+	ReflectionMeta reflection.ServerMeta
 }
 
 // NewFxStockDataYARPCProcedures provides StockDataYARPCServer procedures to an Fx application.

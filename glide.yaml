@@ -8,6 +8,7 @@ import:
   version: ^1.4.0
 - package: google.golang.org/grpc
   version: ^1.19.0
+  repo: https://github.com/grpc/grpc-go
 - package: go.uber.org/config
   version: ^1.0.0
 - package: github.com/gogo/protobuf
