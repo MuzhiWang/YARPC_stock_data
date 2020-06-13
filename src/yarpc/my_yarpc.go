@@ -1,9 +1,9 @@
 package myyarpc
 
 import (
-	"go.uber.org/yarpc/transport/grpc"
 	"context"
 	"fmt"
+	"go.uber.org/yarpc/transport/grpc"
 	"net"
 
 	// "google.golang.org/grpc"
@@ -86,6 +86,8 @@ func newServerDispatcher(procedures []transport.Procedure) (*yarpc.Dispatcher, e
 	)
 
 	dispatcher.Register(procedures)
+
+	//ggrefl.Register()
 	return dispatcher, nil
 }
 

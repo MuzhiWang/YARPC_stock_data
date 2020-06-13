@@ -21,7 +21,9 @@ func New() pb.StockDataYARPCServer {
 	return &handler{}
 }
 
-func (h *handler) Test(context.Context, *pb.TestRequest) (
+func (h *handler) Test(ctx context.Context, request *pb.TestRequest) (
 	*pb.TestResponse, error) {
-	return nil, nil
+	return &pb.TestResponse{
+		Value: request.Value,
+	}, nil
 }
