@@ -26,7 +26,7 @@ require (
 	go.uber.org/net/metrics v1.3.0 // indirect
 	go.uber.org/thriftrw v1.23.0 // indirect
 	go.uber.org/yarpc v1.46.0
-	go.uber.org/zap v1.15.0 // indirect
+	go.uber.org/zap v1.15.0
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20200528225125-3c3fba18258b // indirect
 	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect
