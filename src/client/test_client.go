@@ -22,7 +22,7 @@ func main() {
 		Name: "stockdata-client",
 		Outbounds: yarpc.Outbounds{
 			"stockdata": {
-				Unary: grpc.NewTransport().NewSingleOutbound("localhost:5432"),
+				Unary: grpc.NewTransport().NewSingleOutbound(":5432"),
 			},
 		},
 	})

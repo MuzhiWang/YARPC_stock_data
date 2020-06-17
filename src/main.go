@@ -1,6 +1,8 @@
 package main
 
 import (
+	"StockData/src/common/logger"
+	"StockData/src/common/request_processor"
 	"StockData/src/config"
 	"StockData/src/handler"
 	myyarpc "StockData/src/yarpc"
@@ -18,5 +20,7 @@ func opts() fx.Option {
 		fx.Provide(config.Module),
 		handler.Module,
 		myyarpc.Module,
+		logger.Module,
+		request_processor.Module,
 	)
 }

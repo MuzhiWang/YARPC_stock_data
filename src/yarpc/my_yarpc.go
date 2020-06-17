@@ -72,7 +72,7 @@ func New(p Params) (Result, error) {
 }
 
 func newServerDispatcher(procedures []transport.Procedure) (*yarpc.Dispatcher, error) {
-	listener, err := net.Listen("tcp", "localhost:5432")
+	listener, err := net.Listen("tcp", ":5432")
 	if err != nil {
 		return nil, err
 	}
