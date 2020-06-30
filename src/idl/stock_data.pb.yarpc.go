@@ -87,7 +87,7 @@ type FxStockDataYARPCClientParams struct {
 	fx.In
 
 	Provider    yarpc.ClientConfig
-	AnyResolver jsonpb.AnyResolver
+	AnyResolver jsonpb.AnyResolver  `name:"yarpcfx" optional:"true"`
 	Restriction restriction.Checker `optional:"true"`
 }
 
@@ -137,7 +137,7 @@ type FxStockDataYARPCProceduresParams struct {
 	fx.In
 
 	Server      StockDataYARPCServer
-	AnyResolver jsonpb.AnyResolver
+	AnyResolver jsonpb.AnyResolver `name:"yarpcfx" optional:"true"`
 }
 
 // FxStockDataYARPCProceduresResult defines the output

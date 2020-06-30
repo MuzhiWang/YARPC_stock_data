@@ -6,7 +6,7 @@ import (
 	"go.uber.org/yarpc"
 )
 
-//var Module = fx.Provide(new)
+var Module = fx.Provide(new)
 
 type Params struct {
 	fx.In

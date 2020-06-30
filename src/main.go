@@ -1,6 +1,7 @@
 package main
 
 import (
+	"StockData/src/client/tdx"
 	"StockData/src/common/logger"
 	"StockData/src/common/request_processor"
 	"StockData/src/config"
@@ -24,5 +25,6 @@ func opts() fx.Option {
 		logger.Module,
 		request_processor.Module,
 		stock_data.Module,
+		tdx.Module,
 	)
 }

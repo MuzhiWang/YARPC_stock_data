@@ -1,5 +1,5 @@
 `cd .\idl`
-`protoc.exe --descriptor_set_out=. --gogoslick_out=. --yarpc-go_out=. .\stock_data.proto`
+`protoc.exe --descriptor_set_out=stock_data.pb.h --gogoslick_out=. --yarpc-go_out=. .\stock_data.proto`
 
 `cd .\idl\tdx`
 `protoc.exe --gogoslick_out=. --yarpc-go_out=. .\TdxReader.proto`

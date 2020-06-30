@@ -1,7 +1,6 @@
 package myyarpc
 
 import (
-	"StockData/src/idl/tdx"
 	"context"
 	"fmt"
 	"go.uber.org/yarpc/transport/grpc"
@@ -27,32 +26,27 @@ type Params struct {
 
 	LifeCycle       fx.Lifecycle
 	Cfg             config.Provider
-	Transports      []transport.Procedure
-	ReflectionMeta  reflection.ServerMeta
 }
 
 type Result struct {
 	fx.Out
 
 	Dispatcher yarpc.Dispatcher
-
-	TdxClient tdxreader.TdxReaderYARPCClient
 }
 
 func New(p Params) (Result, error) {
 	fmt.Println("*****#####++++++++++")
-	dispatcher, err := newServerDispatcher(p.Transports)
+	dispatcher, err := newServerDispatcher()
 	if err != nil {
 		return Result{}, err
 	}
 
 	return Result{
 		Dispatcher: *dispatcher,
-		TdxClient: tdxreader.NewTdxReaderYARPCClient(dispatcher.MustOutboundConfig("TdxReader")),
 	}, nil
 }
 
-func newServerDispatcher(procedures []transport.Procedure) (*yarpc.Dispatcher, error) {
+func newServerDispatcher() (*yarpc.Dispatcher, error) {
 	listener, err := net.Listen("tcp", ":5432")
 	if err != nil {
 		return nil, err
@@ -71,7 +65,6 @@ func newServerDispatcher(procedures []transport.Procedure) (*yarpc.Dispatcher, e
 		},
 	)
 
-	dispatcher.Register(procedures)
 
 	//ggrefl.Register()
 	return dispatcher, nil
@@ -81,6 +74,10 @@ type RunDispatcherParams struct {
 	fx.In
 
 	LifeCycle fx.Lifecycle
+
+	Transports      []transport.Procedure
+	ReflectionMeta  reflection.ServerMeta
+	//TdxClient tdxreader.TdxReaderYARPCClient
 	Dispatcher yarpc.Dispatcher
 }
 
@@ -100,29 +97,31 @@ func RunDispatcher(p RunDispatcherParams) {
 		},
 	})
 
+	p.Dispatcher.Register(p.Transports)
+
 	fmt.Println("start to run dispatcher !!!!!!")
 	if err := p.Dispatcher.Start(); err != nil {
 		panic("errorrrrrrr start dispatcher")
 	}
 }
 
-// func buildYARPCConfig(cfg config.Provider) (yarpc.Config, error) {
-// 	var cfgData map[string]interface{}
-// 	if err := cfg.Get("yarpc").Populate(&cfgData); err != nil {
-// 		return yarpc.Config{}, fmt.Errorf("get yarpc config error " + err.Error())
-// 	}
-
-// 	configurator := yarpcconfig.New()
-// 	configurator.RegisterTransport(grpcTransportSpec())
-// 	yCfg, err := (*configurator).LoadConfig("stock-data", cfgData)
-// 	if err != nil {
-// 		return yarpc.Config{}, fmt.Errorf("load config failed " + err.Error())
-// 	}
-
-// 	return yCfg, nil
-// }
-
-// func grpcTransportSpec() yarpcconfig.TransportSpec {
-// 	spec := grpc.TransportSpec()
-// 	return spec
-// }
+//func buildYARPCConfig(cfg config.Provider) (yarpc.Config, error) {
+//	var cfgData map[string]interface{}
+//	if err := cfg.Get("yarpc").Populate(&cfgData); err != nil {
+//		return yarpc.Config{}, fmt.Errorf("get yarpc config error " + err.Error())
+//	}
+//
+//	configurator := yarpcconfig.New()
+//	configurator.RegisterTransport(grpcTransportSpec())
+//	yCfg, err := (*configurator).LoadConfig("stock-data", cfgData)
+//	if err != nil {
+//		return yarpc.Config{}, fmt.Errorf("load config failed " + err.Error())
+//	}
+//
+//	return yCfg, nil
+//}
+//
+//func grpcTransportSpec() yarpcconfig.TransportSpec {
+//	spec := grpc.TransportSpec()
+//	return spec
+//}
