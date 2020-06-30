@@ -9,7 +9,7 @@ import (
 var Module = fx.Provide(new)
 
 type Controller interface {
-	ReadStockData(ctx context.Context) error
+	ReadStockData(ctx context.Context, name string) (string, error)
 }
 
 type controller struct {
@@ -22,10 +22,10 @@ func new(tdxClient tdxreader.TdxReaderYARPCClient) Controller {
 	}
 }
 
-func (c *controller) ReadStockData(ctx context.Context) error {
-	_, err := c.tdxClient.Hello(ctx, &tdxreader.HelloRequest{
-		Name: "test from yarpc client",
+func (c *controller) ReadStockData(ctx context.Context, name string) (string, error) {
+	res, err := c.tdxClient.Hello(ctx, &tdxreader.HelloRequest{
+		Name: name,
 	})
 
-	return err
+	return res.Message, err
 }

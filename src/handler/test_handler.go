@@ -47,14 +47,14 @@ func (h *handler) Test(ctx context.Context, request *pb.TestRequest) (
 	defer h.requestProcessor.Handle(ctx, request, res, err)
 
 
-	err = h.controller.ReadStockData(ctx)
+	ret, err := h.controller.ReadStockData(ctx, request.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	//res = &pb.TestResponse{
-	//	Value: ret.Message,
-	//}
+	res = &pb.TestResponse{
+		Value: ret,
+	}
 
 	return res, nil
 }
