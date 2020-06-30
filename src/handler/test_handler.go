@@ -2,6 +2,7 @@ package handler
 
 import (
 	"StockData/src/common/request_processor"
+	"StockData/src/controller/stock_data"
 	pb "StockData/src/idl"
 	"context"
 	"fmt"
@@ -20,29 +21,40 @@ type Params struct {
 
 	RequestProcessor request_processor.Processor
 	Logger           *zap.Logger
+
+	StockDataController stock_data.Controller
 }
 
 type handler struct {
-	Logger           *zap.Logger
-	RequestProcessor request_processor.Processor
+	logger           *zap.Logger
+	requestProcessor request_processor.Processor
+
+	controller stock_data.Controller
 }
 
 func New(p Params) pb.StockDataYARPCServer {
 	fmt.Println("start test handler! .......")
 	return &handler{
-		Logger:           p.Logger,
-		RequestProcessor: p.RequestProcessor,
+		logger:           p.Logger,
+		requestProcessor: p.RequestProcessor,
+		controller: p.StockDataController,
 	}
 }
 
 func (h *handler) Test(ctx context.Context, request *pb.TestRequest) (
 	res *pb.TestResponse, err error) {
 
-	defer h.RequestProcessor.Handle(ctx, request, res, err)
+	defer h.requestProcessor.Handle(ctx, request, res, err)
 
-	res = &pb.TestResponse{
-		Value: request.Value,
+
+	err = h.controller.ReadStockData(ctx)
+	if err != nil {
+		return nil, err
 	}
+
+	//res = &pb.TestResponse{
+	//	Value: ret.Message,
+	//}
 
 	return res, nil
 }
