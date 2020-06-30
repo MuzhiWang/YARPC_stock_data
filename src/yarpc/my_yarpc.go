@@ -1,6 +1,7 @@
 package myyarpc
 
 import (
+	"StockData/src/idl/tdx"
 	"context"
 	"fmt"
 	"go.uber.org/yarpc/transport/grpc"
@@ -14,8 +15,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/yarpc"
 	"go.uber.org/yarpc/api/transport"
-
-	pb "StockData/src/idl"
 )
 
 var Module = fx.Options(
@@ -30,44 +29,26 @@ type Params struct {
 	Cfg             config.Provider
 	Transports      []transport.Procedure
 	ReflectionMeta  reflection.ServerMeta
-	StockDataServer pb.StockDataYARPCServer
 }
 
 type Result struct {
 	fx.Out
 
 	Dispatcher yarpc.Dispatcher
+
+	TdxClient tdxreader.TdxReaderYARPCClient
 }
 
 func New(p Params) (Result, error) {
-	//yCfg, err := buildYARPCConfig(p.Cfg)
-	//if err != nil {
-	//	return Result{}, fmt.Errorf("yCfg error: %s ", err.Error())
-	//}
 	fmt.Println("*****#####++++++++++")
-	//dispatcher := yarpc.NewDispatcher(yCfg)
 	dispatcher, err := newServerDispatcher(p.Transports)
 	if err != nil {
 		return Result{}, err
 	}
-	// if err := dispatcher.Start(); err != nil {
-	// 	return Result{}, fmt.Errorf("dispatcher start error: %s", err.Error())
-	// }
-	// defer dispatcher.Stop()
-
-	//dispatcher.Register(p.Transports)
-	// s := grpc.NewServer()
-	// s.RegisterService()
-	// grpcrefl.Register(s)
-
-	//if err := dispatcher.Start(); err != nil {
-	//	panic("dispatch error")
-	//}
-	//fmt.Println("dispatch running")
-
 
 	return Result{
 		Dispatcher: *dispatcher,
+		TdxClient: tdxreader.NewTdxReaderYARPCClient(dispatcher.MustOutboundConfig("TdxReader")),
 	}, nil
 }
 
@@ -81,6 +62,11 @@ func newServerDispatcher(procedures []transport.Procedure) (*yarpc.Dispatcher, e
 			Name: "stockdata",
 			Inbounds: yarpc.Inbounds{
 				grpc.NewTransport().NewInbound(listener),
+			},
+			Outbounds: yarpc.Outbounds{
+				"TdxReader": transport.Outbounds{
+					Unary: grpc.NewTransport().NewSingleOutbound(":50051"),
+				},
 			},
 		},
 	)

@@ -4,6 +4,7 @@ import (
 	"StockData/src/common/logger"
 	"StockData/src/common/request_processor"
 	"StockData/src/config"
+	"StockData/src/controller/stock_data"
 	"StockData/src/handler"
 	myyarpc "StockData/src/yarpc"
 	"fmt"
@@ -22,5 +23,6 @@ func opts() fx.Option {
 		myyarpc.Module,
 		logger.Module,
 		request_processor.Module,
+		stock_data.Module,
 	)
 }

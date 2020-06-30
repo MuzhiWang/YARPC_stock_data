@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "muzwang.tdx_reader";
+option java_outer_classname = "TdxReaderProto";
+option objc_class_prefix = "TDX";
+
+package tdxreader;
+
+//import "google/protobuf/any.proto";
+
+enum DateMetric {
+  UNDEFINED = 0;
+  ONE_MIN = 1;
+  FIVE_MIN = 2;
+  ONE_DAY = 3;
+}
+
+// The greeting service definition.
+service TdxReader {
+  // Sends a greeting
+  rpc Hello (HelloRequest) returns (HelloReply) {}
+
+  // Read tdx local file
+  rpc ReadTdxFile(ReadTdxFileRequest) returns (TdxFileData) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+
+message ReadTdxFileRequest {
+  string filePath = 1;
+  DateMetric metric = 2;
+}
+
+//message MapValue {
+//  oneof value {
+//    string str = 1;
+//    double double = 2;
+//  }
+//}
+
+message StockData {
+  string dateTime = 1;
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  double amount = 6;
+  double volume = 7;
+}
+
+message TdxFileData {
+  repeated StockData data = 1;
+}
