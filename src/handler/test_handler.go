@@ -3,7 +3,9 @@ package handler
 import (
 	"StockData/src/common/request_processor"
 	"StockData/src/controller/stock_data"
+	"StockData/src/entity"
 	pb "StockData/src/idl"
+	"StockData/src/mapper"
 	"context"
 	"fmt"
 	"go.uber.org/zap"
@@ -47,7 +49,7 @@ func (h *handler) Test(ctx context.Context, request *pb.TestRequest) (
 	defer h.requestProcessor.Handle(ctx, request, res, err)
 
 
-	ret, err := h.controller.ReadStockData(ctx, request.Value)
+	ret, err := h.controller.HelloTdxClient(ctx, request.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -57,4 +59,19 @@ func (h *handler) Test(ctx context.Context, request *pb.TestRequest) (
 	}
 
 	return res, nil
+}
+
+func (h *handler) GetStockData(
+	ctx context.Context, request *pb.GetStockDataRequest) (*pb.GetStockDataResponse, error) {
+	testPath := "/Users/superegg/PycharmProjects/QuantTest/Tests/LC1/SZ/sz000001.lc1"
+	stockData, err := h.controller.ReadLocalTdxStockData(ctx, entity.ReadLocalStockDataRequest{
+		DataMetric: mapper.MapMetricFromProtoToEntity(request.Metric),
+		LocalPath: testPath,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return mapper.MapStockDataFromEntityToProto(stockData), nil
 }

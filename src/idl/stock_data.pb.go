@@ -4,12 +4,15 @@
 package muzwang_stock_data
 
 import (
+	encoding_binary "encoding/binary"
 	fmt "fmt"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_sortkeys "github.com/gogo/protobuf/sortkeys"
 	io "io"
 	math "math"
 	math_bits "math/bits"
 	reflect "reflect"
+	strconv "strconv"
 	strings "strings"
 )
 
@@ -23,6 +26,69 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
+
+type Metric int32
+
+const (
+	MetricInvalid       Metric = 0
+	MetricOneMinute     Metric = 1
+	MetricFiveMinutes   Metric = 2
+	MetricThirtyMinutes Metric = 3
+	MetricOneHour       Metric = 4
+	MetricTwoHours      Metric = 5
+	MetricThreeHours    Metric = 6
+	MetricOneDay        Metric = 7
+)
+
+var Metric_name = map[int32]string{
+	0: "MetricInvalid",
+	1: "MetricOneMinute",
+	2: "MetricFiveMinutes",
+	3: "MetricThirtyMinutes",
+	4: "MetricOneHour",
+	5: "MetricTwoHours",
+	6: "MetricThreeHours",
+	7: "MetricOneDay",
+}
+
+var Metric_value = map[string]int32{
+	"MetricInvalid":       0,
+	"MetricOneMinute":     1,
+	"MetricFiveMinutes":   2,
+	"MetricThirtyMinutes": 3,
+	"MetricOneHour":       4,
+	"MetricTwoHours":      5,
+	"MetricThreeHours":    6,
+	"MetricOneDay":        7,
+}
+
+func (Metric) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{0}
+}
+
+type StockType int32
+
+const (
+	StockTypeInvalid StockType = 0
+	StockTypeStock   StockType = 1
+	StockTypeIndex   StockType = 2
+)
+
+var StockType_name = map[int32]string{
+	0: "StockTypeInvalid",
+	1: "StockTypeStock",
+	2: "StockTypeIndex",
+}
+
+var StockType_value = map[string]int32{
+	"StockTypeInvalid": 0,
+	"StockTypeStock":   1,
+	"StockTypeIndex":   2,
+}
+
+func (StockType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{1}
+}
 
 type TestRequest struct {
 	Value string `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
@@ -110,30 +176,408 @@ func (m *TestResponse) GetValue() string {
 	return ""
 }
 
+type DateRange struct {
+	StartDate string `protobuf:"bytes,1,opt,name=startDate,proto3" json:"startDate,omitempty"`
+	EndDate   string `protobuf:"bytes,2,opt,name=endDate,proto3" json:"endDate,omitempty"`
+}
+
+func (m *DateRange) Reset()      { *m = DateRange{} }
+func (*DateRange) ProtoMessage() {}
+func (*DateRange) Descriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{2}
+}
+func (m *DateRange) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DateRange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DateRange.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DateRange) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DateRange.Merge(m, src)
+}
+func (m *DateRange) XXX_Size() int {
+	return m.Size()
+}
+func (m *DateRange) XXX_DiscardUnknown() {
+	xxx_messageInfo_DateRange.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DateRange proto.InternalMessageInfo
+
+func (m *DateRange) GetStartDate() string {
+	if m != nil {
+		return m.StartDate
+	}
+	return ""
+}
+
+func (m *DateRange) GetEndDate() string {
+	if m != nil {
+		return m.EndDate
+	}
+	return ""
+}
+
+type GetStockDataRequest struct {
+	Metric          Metric            `protobuf:"varint,1,opt,name=metric,proto3,enum=muzwang.stock_data.Metric" json:"metric,omitempty"`
+	DateRange       *DateRange        `protobuf:"bytes,2,opt,name=dateRange,proto3" json:"dateRange,omitempty"`
+	StockType       StockType         `protobuf:"varint,3,opt,name=stockType,proto3,enum=muzwang.stock_data.StockType" json:"stockType,omitempty"`
+	Id              string            `protobuf:"bytes,4,opt,name=id,proto3" json:"id,omitempty"`
+	OtherProperties map[string]string `protobuf:"bytes,5,rep,name=otherProperties,proto3" json:"otherProperties,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+}
+
+func (m *GetStockDataRequest) Reset()      { *m = GetStockDataRequest{} }
+func (*GetStockDataRequest) ProtoMessage() {}
+func (*GetStockDataRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{3}
+}
+func (m *GetStockDataRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetStockDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetStockDataRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetStockDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetStockDataRequest.Merge(m, src)
+}
+func (m *GetStockDataRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetStockDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetStockDataRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetStockDataRequest proto.InternalMessageInfo
+
+func (m *GetStockDataRequest) GetMetric() Metric {
+	if m != nil {
+		return m.Metric
+	}
+	return MetricInvalid
+}
+
+func (m *GetStockDataRequest) GetDateRange() *DateRange {
+	if m != nil {
+		return m.DateRange
+	}
+	return nil
+}
+
+func (m *GetStockDataRequest) GetStockType() StockType {
+	if m != nil {
+		return m.StockType
+	}
+	return StockTypeInvalid
+}
+
+func (m *GetStockDataRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *GetStockDataRequest) GetOtherProperties() map[string]string {
+	if m != nil {
+		return m.OtherProperties
+	}
+	return nil
+}
+
+type MetaData struct {
+	Metric    Metric     `protobuf:"varint,1,opt,name=metric,proto3,enum=muzwang.stock_data.Metric" json:"metric,omitempty"`
+	DateRange *DateRange `protobuf:"bytes,2,opt,name=dateRange,proto3" json:"dateRange,omitempty"`
+	StockType StockType  `protobuf:"varint,3,opt,name=stockType,proto3,enum=muzwang.stock_data.StockType" json:"stockType,omitempty"`
+}
+
+func (m *MetaData) Reset()      { *m = MetaData{} }
+func (*MetaData) ProtoMessage() {}
+func (*MetaData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{4}
+}
+func (m *MetaData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MetaData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MetaData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MetaData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetaData.Merge(m, src)
+}
+func (m *MetaData) XXX_Size() int {
+	return m.Size()
+}
+func (m *MetaData) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetaData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MetaData proto.InternalMessageInfo
+
+func (m *MetaData) GetMetric() Metric {
+	if m != nil {
+		return m.Metric
+	}
+	return MetricInvalid
+}
+
+func (m *MetaData) GetDateRange() *DateRange {
+	if m != nil {
+		return m.DateRange
+	}
+	return nil
+}
+
+func (m *MetaData) GetStockType() StockType {
+	if m != nil {
+		return m.StockType
+	}
+	return StockTypeInvalid
+}
+
+type RowData struct {
+	DateTime string  `protobuf:"bytes,1,opt,name=dateTime,proto3" json:"dateTime,omitempty"`
+	Open     float64 `protobuf:"fixed64,2,opt,name=open,proto3" json:"open,omitempty"`
+	High     float64 `protobuf:"fixed64,3,opt,name=high,proto3" json:"high,omitempty"`
+	Low      float64 `protobuf:"fixed64,4,opt,name=low,proto3" json:"low,omitempty"`
+	Close    float64 `protobuf:"fixed64,5,opt,name=close,proto3" json:"close,omitempty"`
+	Amount   float64 `protobuf:"fixed64,6,opt,name=amount,proto3" json:"amount,omitempty"`
+	Volume   float64 `protobuf:"fixed64,7,opt,name=volume,proto3" json:"volume,omitempty"`
+}
+
+func (m *RowData) Reset()      { *m = RowData{} }
+func (*RowData) ProtoMessage() {}
+func (*RowData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{5}
+}
+func (m *RowData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RowData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RowData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RowData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RowData.Merge(m, src)
+}
+func (m *RowData) XXX_Size() int {
+	return m.Size()
+}
+func (m *RowData) XXX_DiscardUnknown() {
+	xxx_messageInfo_RowData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RowData proto.InternalMessageInfo
+
+func (m *RowData) GetDateTime() string {
+	if m != nil {
+		return m.DateTime
+	}
+	return ""
+}
+
+func (m *RowData) GetOpen() float64 {
+	if m != nil {
+		return m.Open
+	}
+	return 0
+}
+
+func (m *RowData) GetHigh() float64 {
+	if m != nil {
+		return m.High
+	}
+	return 0
+}
+
+func (m *RowData) GetLow() float64 {
+	if m != nil {
+		return m.Low
+	}
+	return 0
+}
+
+func (m *RowData) GetClose() float64 {
+	if m != nil {
+		return m.Close
+	}
+	return 0
+}
+
+func (m *RowData) GetAmount() float64 {
+	if m != nil {
+		return m.Amount
+	}
+	return 0
+}
+
+func (m *RowData) GetVolume() float64 {
+	if m != nil {
+		return m.Volume
+	}
+	return 0
+}
+
+type GetStockDataResponse struct {
+	Meta *MetaData  `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`
+	Data []*RowData `protobuf:"bytes,2,rep,name=data,proto3" json:"data,omitempty"`
+}
+
+func (m *GetStockDataResponse) Reset()      { *m = GetStockDataResponse{} }
+func (*GetStockDataResponse) ProtoMessage() {}
+func (*GetStockDataResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_46d4f64edd7c98cf, []int{6}
+}
+func (m *GetStockDataResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetStockDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetStockDataResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetStockDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetStockDataResponse.Merge(m, src)
+}
+func (m *GetStockDataResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetStockDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetStockDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetStockDataResponse proto.InternalMessageInfo
+
+func (m *GetStockDataResponse) GetMeta() *MetaData {
+	if m != nil {
+		return m.Meta
+	}
+	return nil
+}
+
+func (m *GetStockDataResponse) GetData() []*RowData {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
 func init() {
+	proto.RegisterEnum("muzwang.stock_data.Metric", Metric_name, Metric_value)
+	proto.RegisterEnum("muzwang.stock_data.StockType", StockType_name, StockType_value)
 	proto.RegisterType((*TestRequest)(nil), "muzwang.stock_data.TestRequest")
 	proto.RegisterType((*TestResponse)(nil), "muzwang.stock_data.TestResponse")
+	proto.RegisterType((*DateRange)(nil), "muzwang.stock_data.DateRange")
+	proto.RegisterType((*GetStockDataRequest)(nil), "muzwang.stock_data.GetStockDataRequest")
+	proto.RegisterMapType((map[string]string)(nil), "muzwang.stock_data.GetStockDataRequest.OtherPropertiesEntry")
+	proto.RegisterType((*MetaData)(nil), "muzwang.stock_data.MetaData")
+	proto.RegisterType((*RowData)(nil), "muzwang.stock_data.RowData")
+	proto.RegisterType((*GetStockDataResponse)(nil), "muzwang.stock_data.GetStockDataResponse")
 }
 
 func init() { proto.RegisterFile("stock_data.proto", fileDescriptor_46d4f64edd7c98cf) }
 
 var fileDescriptor_46d4f64edd7c98cf = []byte{
-	// 197 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x28, 0x2e, 0xc9, 0x4f,
-	0xce, 0x8e, 0x4f, 0x49, 0x2c, 0x49, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0xca, 0x2d,
-	0xad, 0x2a, 0x4f, 0xcc, 0x4b, 0xd7, 0x43, 0xc8, 0x28, 0x29, 0x73, 0x71, 0x87, 0xa4, 0x16, 0x97,
-	0x04, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x08, 0x89, 0x70, 0xb1, 0x96, 0x25, 0xe6, 0x94, 0xa6,
-	0x4a, 0x30, 0x2a, 0x30, 0x6a, 0x70, 0x06, 0x41, 0x38, 0x4a, 0x2a, 0x5c, 0x3c, 0x10, 0x45, 0xc5,
-	0x05, 0xf9, 0x79, 0xc5, 0xa9, 0xd8, 0x55, 0x19, 0x45, 0x70, 0x71, 0x06, 0x83, 0x0c, 0x76, 0x49,
-	0x2c, 0x49, 0x14, 0xf2, 0xe6, 0x62, 0x01, 0x69, 0x11, 0x92, 0xd7, 0xc3, 0xb4, 0x54, 0x0f, 0xc9,
-	0x46, 0x29, 0x05, 0xdc, 0x0a, 0x20, 0xb6, 0x29, 0x31, 0x38, 0x99, 0x5c, 0x78, 0x28, 0xc7, 0x70,
-	0xe3, 0xa1, 0x1c, 0xc3, 0x87, 0x87, 0x72, 0x8c, 0x0d, 0x8f, 0xe4, 0x18, 0x57, 0x3c, 0x92, 0x63,
-	0x3c, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x5f, 0x3c, 0x92,
-	0x63, 0xf8, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c,
-	0x96, 0x63, 0x48, 0x62, 0x03, 0xfb, 0xda, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0xbd, 0xf3, 0x62,
-	0x75, 0x09, 0x01, 0x00, 0x00,
+	// 669 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x54, 0x3d, 0x73, 0xd3, 0x4c,
+	0x10, 0xf6, 0xc9, 0x5f, 0xf1, 0x3a, 0xaf, 0xa3, 0x5c, 0xfc, 0x82, 0xc6, 0x04, 0x91, 0x31, 0xcc,
+	0x90, 0x49, 0x61, 0x18, 0x43, 0xc1, 0x00, 0x55, 0x08, 0x1f, 0x2e, 0x32, 0x61, 0x2e, 0xee, 0x99,
+	0x23, 0x5a, 0x62, 0x4d, 0x6c, 0x9d, 0x91, 0x4e, 0x36, 0xa6, 0xe2, 0x27, 0xf0, 0x27, 0x98, 0xa1,
+	0xa3, 0x85, 0x7f, 0x40, 0x99, 0x32, 0x25, 0x51, 0x1a, 0xca, 0xfc, 0x03, 0x98, 0x3b, 0x49, 0x56,
+	0x02, 0xca, 0x40, 0x4b, 0xb7, 0xfb, 0xec, 0xb3, 0x1f, 0xb7, 0xcf, 0xdd, 0x81, 0x19, 0x48, 0xb1,
+	0x77, 0xf0, 0xc2, 0xe1, 0x92, 0x77, 0xc6, 0xbe, 0x90, 0x82, 0xd2, 0x51, 0xf8, 0x76, 0xca, 0xbd,
+	0xfd, 0x4e, 0x16, 0x69, 0x5f, 0x87, 0x7a, 0x1f, 0x03, 0xc9, 0xf0, 0x75, 0x88, 0x81, 0xa4, 0x4d,
+	0x28, 0x4f, 0xf8, 0x30, 0x44, 0x8b, 0xac, 0x91, 0xf5, 0x1a, 0x8b, 0x9d, 0xf6, 0x0d, 0x58, 0x8c,
+	0x49, 0xc1, 0x58, 0x78, 0x01, 0x5e, 0xc0, 0x7a, 0x04, 0xb5, 0x2d, 0x2e, 0x91, 0x71, 0x6f, 0x1f,
+	0xe9, 0x2a, 0xd4, 0x02, 0xc9, 0x7d, 0xa9, 0x90, 0x84, 0x96, 0x01, 0xd4, 0x82, 0x2a, 0x7a, 0x8e,
+	0x8e, 0x19, 0x3a, 0x96, 0xba, 0xed, 0x1f, 0x06, 0xac, 0x3c, 0x45, 0xb9, 0xab, 0x26, 0xdc, 0xe2,
+	0x92, 0xa7, 0x83, 0x75, 0xa1, 0x32, 0x42, 0xe9, 0xbb, 0x7b, 0xba, 0x58, 0xa3, 0xdb, 0xea, 0xfc,
+	0x7e, 0x98, 0xce, 0xb6, 0x66, 0xb0, 0x84, 0x49, 0x1f, 0x40, 0xcd, 0x49, 0x07, 0xd2, 0x7d, 0xea,
+	0xdd, 0xab, 0x79, 0x69, 0xf3, 0xa9, 0x59, 0xc6, 0x57, 0xc9, 0x9a, 0xd2, 0x9f, 0x8d, 0xd1, 0x2a,
+	0xea, 0x9e, 0xb9, 0xc9, 0xbb, 0x29, 0x89, 0x65, 0x7c, 0xda, 0x00, 0xc3, 0x75, 0xac, 0x92, 0x3e,
+	0x9a, 0xe1, 0x3a, 0xf4, 0x15, 0x2c, 0x09, 0x39, 0x40, 0xff, 0xb9, 0x2f, 0xc6, 0xe8, 0x4b, 0x17,
+	0x03, 0xab, 0xbc, 0x56, 0x5c, 0xaf, 0x77, 0x1f, 0xe6, 0x95, 0xcc, 0x39, 0x7f, 0x67, 0xe7, 0x7c,
+	0xfa, 0x63, 0x4f, 0xfa, 0x33, 0xf6, 0x6b, 0xd1, 0xd6, 0x26, 0x34, 0xf3, 0x88, 0xd4, 0x84, 0xe2,
+	0x01, 0xce, 0x12, 0x1d, 0x94, 0x99, 0x49, 0x68, 0x9c, 0x91, 0xf0, 0xbe, 0x71, 0x8f, 0xb4, 0x3f,
+	0x13, 0x58, 0xd8, 0x46, 0xc9, 0x55, 0xf7, 0x7f, 0x6b, 0xed, 0xed, 0x0f, 0x04, 0xaa, 0x4c, 0x4c,
+	0xf5, 0xe4, 0x2d, 0x58, 0x50, 0x55, 0xfb, 0xee, 0x28, 0xbd, 0x7f, 0x73, 0x9f, 0x52, 0x28, 0x89,
+	0x31, 0x7a, 0x7a, 0x38, 0xc2, 0xb4, 0xad, 0xb0, 0x81, 0xbb, 0x3f, 0xd0, 0x3d, 0x09, 0xd3, 0xb6,
+	0x5a, 0xdb, 0x50, 0x4c, 0xb5, 0x8e, 0x84, 0x29, 0x53, 0xad, 0x6d, 0x6f, 0x28, 0x02, 0xb4, 0xca,
+	0x1a, 0x8b, 0x1d, 0x7a, 0x09, 0x2a, 0x7c, 0x24, 0x42, 0x4f, 0x5a, 0x15, 0x0d, 0x27, 0x9e, 0xc2,
+	0x27, 0x62, 0x18, 0x8e, 0xd0, 0xaa, 0xc6, 0x78, 0xec, 0xb5, 0x67, 0xd0, 0x3c, 0xaf, 0x71, 0xf2,
+	0xae, 0x6e, 0x43, 0x69, 0x84, 0x92, 0xeb, 0x79, 0xeb, 0xdd, 0xd5, 0x0b, 0x76, 0xad, 0x95, 0x61,
+	0x9a, 0x49, 0x6f, 0x41, 0x49, 0xc1, 0x96, 0xa1, 0x6f, 0xd3, 0x95, 0xbc, 0x8c, 0x64, 0x21, 0x4c,
+	0x13, 0x37, 0x3e, 0x11, 0xa8, 0xc4, 0x7a, 0xd1, 0x65, 0xf8, 0x2f, 0xb6, 0x7a, 0xde, 0x84, 0x0f,
+	0x5d, 0xc7, 0x2c, 0xd0, 0x15, 0x58, 0x8a, 0xa1, 0x1d, 0x0f, 0xb7, 0x5d, 0x2f, 0x94, 0x68, 0x12,
+	0xfa, 0x3f, 0x2c, 0xc7, 0xe0, 0x13, 0x77, 0x92, 0xa0, 0x81, 0x69, 0xd0, 0xcb, 0xb0, 0x12, 0xc3,
+	0xfd, 0x81, 0xeb, 0xcb, 0x59, 0x1a, 0x28, 0x66, 0x75, 0x77, 0x3c, 0x7c, 0x26, 0x42, 0xdf, 0x2c,
+	0x51, 0x0a, 0x8d, 0x84, 0x3b, 0x15, 0x0a, 0x0a, 0xcc, 0x32, 0x6d, 0x82, 0x99, 0xe6, 0xfb, 0x88,
+	0x31, 0x5a, 0xa1, 0x26, 0x2c, 0xce, 0x93, 0xb7, 0xf8, 0xcc, 0xac, 0x6e, 0xf4, 0xa0, 0x36, 0x17,
+	0x5b, 0x25, 0xcd, 0x9d, 0x6c, 0x6c, 0x0a, 0x8d, 0x39, 0xaa, 0x0d, 0x93, 0x9c, 0xc3, 0x7a, 0x9e,
+	0x83, 0x6f, 0x4c, 0xa3, 0xfb, 0x85, 0x24, 0xb5, 0xf4, 0x0d, 0xe9, 0x41, 0x49, 0xfd, 0x6a, 0xf4,
+	0x5a, 0xde, 0xd6, 0xce, 0x7c, 0x8a, 0xad, 0xb5, 0x8b, 0x09, 0x89, 0x70, 0x1c, 0x16, 0xcf, 0x0a,
+	0x4a, 0x6f, 0xfe, 0xe5, 0xb3, 0x6e, 0xad, 0xff, 0x99, 0x18, 0xb7, 0xd8, 0xbc, 0x7b, 0x78, 0x6c,
+	0x17, 0x8e, 0x8e, 0xed, 0xc2, 0xe9, 0xb1, 0x4d, 0xde, 0x45, 0x36, 0xf9, 0x18, 0xd9, 0xe4, 0x6b,
+	0x64, 0x93, 0xc3, 0xc8, 0x26, 0xdf, 0x22, 0x9b, 0x7c, 0x8f, 0xec, 0xc2, 0x69, 0x64, 0x93, 0xf7,
+	0x27, 0x76, 0xe1, 0xf0, 0xc4, 0x2e, 0x1c, 0x9d, 0xd8, 0x85, 0x97, 0x15, 0xfd, 0xf3, 0xdf, 0xf9,
+	0x19, 0x00, 0x00, 0xff, 0xff, 0x9c, 0x94, 0xf0, 0x76, 0x0d, 0x06, 0x00, 0x00,
 }
 
+func (x Metric) String() string {
+	s, ok := Metric_name[int32(x)]
+	if ok {
+		return s
+	}
+	return strconv.Itoa(int(x))
+}
+func (x StockType) String() string {
+	s, ok := StockType_name[int32(x)]
+	if ok {
+		return s
+	}
+	return strconv.Itoa(int(x))
+}
 func (this *TestRequest) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -182,6 +626,178 @@ func (this *TestResponse) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *DateRange) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*DateRange)
+	if !ok {
+		that2, ok := that.(DateRange)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.StartDate != that1.StartDate {
+		return false
+	}
+	if this.EndDate != that1.EndDate {
+		return false
+	}
+	return true
+}
+func (this *GetStockDataRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetStockDataRequest)
+	if !ok {
+		that2, ok := that.(GetStockDataRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Metric != that1.Metric {
+		return false
+	}
+	if !this.DateRange.Equal(that1.DateRange) {
+		return false
+	}
+	if this.StockType != that1.StockType {
+		return false
+	}
+	if this.Id != that1.Id {
+		return false
+	}
+	if len(this.OtherProperties) != len(that1.OtherProperties) {
+		return false
+	}
+	for i := range this.OtherProperties {
+		if this.OtherProperties[i] != that1.OtherProperties[i] {
+			return false
+		}
+	}
+	return true
+}
+func (this *MetaData) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*MetaData)
+	if !ok {
+		that2, ok := that.(MetaData)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Metric != that1.Metric {
+		return false
+	}
+	if !this.DateRange.Equal(that1.DateRange) {
+		return false
+	}
+	if this.StockType != that1.StockType {
+		return false
+	}
+	return true
+}
+func (this *RowData) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*RowData)
+	if !ok {
+		that2, ok := that.(RowData)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.DateTime != that1.DateTime {
+		return false
+	}
+	if this.Open != that1.Open {
+		return false
+	}
+	if this.High != that1.High {
+		return false
+	}
+	if this.Low != that1.Low {
+		return false
+	}
+	if this.Close != that1.Close {
+		return false
+	}
+	if this.Amount != that1.Amount {
+		return false
+	}
+	if this.Volume != that1.Volume {
+		return false
+	}
+	return true
+}
+func (this *GetStockDataResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetStockDataResponse)
+	if !ok {
+		that2, ok := that.(GetStockDataResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Meta.Equal(that1.Meta) {
+		return false
+	}
+	if len(this.Data) != len(that1.Data) {
+		return false
+	}
+	for i := range this.Data {
+		if !this.Data[i].Equal(that1.Data[i]) {
+			return false
+		}
+	}
+	return true
+}
 func (this *TestRequest) GoString() string {
 	if this == nil {
 		return "nil"
@@ -199,6 +815,90 @@ func (this *TestResponse) GoString() string {
 	s := make([]string, 0, 5)
 	s = append(s, "&muzwang_stock_data.TestResponse{")
 	s = append(s, "Value: "+fmt.Sprintf("%#v", this.Value)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *DateRange) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&muzwang_stock_data.DateRange{")
+	s = append(s, "StartDate: "+fmt.Sprintf("%#v", this.StartDate)+",\n")
+	s = append(s, "EndDate: "+fmt.Sprintf("%#v", this.EndDate)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *GetStockDataRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 9)
+	s = append(s, "&muzwang_stock_data.GetStockDataRequest{")
+	s = append(s, "Metric: "+fmt.Sprintf("%#v", this.Metric)+",\n")
+	if this.DateRange != nil {
+		s = append(s, "DateRange: "+fmt.Sprintf("%#v", this.DateRange)+",\n")
+	}
+	s = append(s, "StockType: "+fmt.Sprintf("%#v", this.StockType)+",\n")
+	s = append(s, "Id: "+fmt.Sprintf("%#v", this.Id)+",\n")
+	keysForOtherProperties := make([]string, 0, len(this.OtherProperties))
+	for k, _ := range this.OtherProperties {
+		keysForOtherProperties = append(keysForOtherProperties, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForOtherProperties)
+	mapStringForOtherProperties := "map[string]string{"
+	for _, k := range keysForOtherProperties {
+		mapStringForOtherProperties += fmt.Sprintf("%#v: %#v,", k, this.OtherProperties[k])
+	}
+	mapStringForOtherProperties += "}"
+	if this.OtherProperties != nil {
+		s = append(s, "OtherProperties: "+mapStringForOtherProperties+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *MetaData) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 7)
+	s = append(s, "&muzwang_stock_data.MetaData{")
+	s = append(s, "Metric: "+fmt.Sprintf("%#v", this.Metric)+",\n")
+	if this.DateRange != nil {
+		s = append(s, "DateRange: "+fmt.Sprintf("%#v", this.DateRange)+",\n")
+	}
+	s = append(s, "StockType: "+fmt.Sprintf("%#v", this.StockType)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *RowData) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 11)
+	s = append(s, "&muzwang_stock_data.RowData{")
+	s = append(s, "DateTime: "+fmt.Sprintf("%#v", this.DateTime)+",\n")
+	s = append(s, "Open: "+fmt.Sprintf("%#v", this.Open)+",\n")
+	s = append(s, "High: "+fmt.Sprintf("%#v", this.High)+",\n")
+	s = append(s, "Low: "+fmt.Sprintf("%#v", this.Low)+",\n")
+	s = append(s, "Close: "+fmt.Sprintf("%#v", this.Close)+",\n")
+	s = append(s, "Amount: "+fmt.Sprintf("%#v", this.Amount)+",\n")
+	s = append(s, "Volume: "+fmt.Sprintf("%#v", this.Volume)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *GetStockDataResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&muzwang_stock_data.GetStockDataResponse{")
+	if this.Meta != nil {
+		s = append(s, "Meta: "+fmt.Sprintf("%#v", this.Meta)+",\n")
+	}
+	if this.Data != nil {
+		s = append(s, "Data: "+fmt.Sprintf("%#v", this.Data)+",\n")
+	}
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -270,6 +970,274 @@ func (m *TestResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *DateRange) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DateRange) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DateRange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.EndDate) > 0 {
+		i -= len(m.EndDate)
+		copy(dAtA[i:], m.EndDate)
+		i = encodeVarintStockData(dAtA, i, uint64(len(m.EndDate)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.StartDate) > 0 {
+		i -= len(m.StartDate)
+		copy(dAtA[i:], m.StartDate)
+		i = encodeVarintStockData(dAtA, i, uint64(len(m.StartDate)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetStockDataRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetStockDataRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetStockDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.OtherProperties) > 0 {
+		for k := range m.OtherProperties {
+			v := m.OtherProperties[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintStockData(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintStockData(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintStockData(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintStockData(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.StockType != 0 {
+		i = encodeVarintStockData(dAtA, i, uint64(m.StockType))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.DateRange != nil {
+		{
+			size, err := m.DateRange.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintStockData(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Metric != 0 {
+		i = encodeVarintStockData(dAtA, i, uint64(m.Metric))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MetaData) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MetaData) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MetaData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.StockType != 0 {
+		i = encodeVarintStockData(dAtA, i, uint64(m.StockType))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.DateRange != nil {
+		{
+			size, err := m.DateRange.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintStockData(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Metric != 0 {
+		i = encodeVarintStockData(dAtA, i, uint64(m.Metric))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RowData) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RowData) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RowData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Volume != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Volume))))
+		i--
+		dAtA[i] = 0x39
+	}
+	if m.Amount != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Amount))))
+		i--
+		dAtA[i] = 0x31
+	}
+	if m.Close != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Close))))
+		i--
+		dAtA[i] = 0x29
+	}
+	if m.Low != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Low))))
+		i--
+		dAtA[i] = 0x21
+	}
+	if m.High != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.High))))
+		i--
+		dAtA[i] = 0x19
+	}
+	if m.Open != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Open))))
+		i--
+		dAtA[i] = 0x11
+	}
+	if len(m.DateTime) > 0 {
+		i -= len(m.DateTime)
+		copy(dAtA[i:], m.DateTime)
+		i = encodeVarintStockData(dAtA, i, uint64(len(m.DateTime)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetStockDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetStockDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetStockDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Data) > 0 {
+		for iNdEx := len(m.Data) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Data[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintStockData(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.Meta != nil {
+		{
+			size, err := m.Meta.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintStockData(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintStockData(dAtA []byte, offset int, v uint64) int {
 	offset -= sovStockData(v)
 	base := offset
@@ -307,6 +1275,123 @@ func (m *TestResponse) Size() (n int) {
 	return n
 }
 
+func (m *DateRange) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.StartDate)
+	if l > 0 {
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	l = len(m.EndDate)
+	if l > 0 {
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	return n
+}
+
+func (m *GetStockDataRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Metric != 0 {
+		n += 1 + sovStockData(uint64(m.Metric))
+	}
+	if m.DateRange != nil {
+		l = m.DateRange.Size()
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	if m.StockType != 0 {
+		n += 1 + sovStockData(uint64(m.StockType))
+	}
+	l = len(m.Id)
+	if l > 0 {
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	if len(m.OtherProperties) > 0 {
+		for k, v := range m.OtherProperties {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovStockData(uint64(len(k))) + 1 + len(v) + sovStockData(uint64(len(v)))
+			n += mapEntrySize + 1 + sovStockData(uint64(mapEntrySize))
+		}
+	}
+	return n
+}
+
+func (m *MetaData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Metric != 0 {
+		n += 1 + sovStockData(uint64(m.Metric))
+	}
+	if m.DateRange != nil {
+		l = m.DateRange.Size()
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	if m.StockType != 0 {
+		n += 1 + sovStockData(uint64(m.StockType))
+	}
+	return n
+}
+
+func (m *RowData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DateTime)
+	if l > 0 {
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	if m.Open != 0 {
+		n += 9
+	}
+	if m.High != 0 {
+		n += 9
+	}
+	if m.Low != 0 {
+		n += 9
+	}
+	if m.Close != 0 {
+		n += 9
+	}
+	if m.Amount != 0 {
+		n += 9
+	}
+	if m.Volume != 0 {
+		n += 9
+	}
+	return n
+}
+
+func (m *GetStockDataResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Meta != nil {
+		l = m.Meta.Size()
+		n += 1 + l + sovStockData(uint64(l))
+	}
+	if len(m.Data) > 0 {
+		for _, e := range m.Data {
+			l = e.Size()
+			n += 1 + l + sovStockData(uint64(l))
+		}
+	}
+	return n
+}
+
 func sovStockData(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
@@ -329,6 +1414,85 @@ func (this *TestResponse) String() string {
 	}
 	s := strings.Join([]string{`&TestResponse{`,
 		`Value:` + fmt.Sprintf("%v", this.Value) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *DateRange) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&DateRange{`,
+		`StartDate:` + fmt.Sprintf("%v", this.StartDate) + `,`,
+		`EndDate:` + fmt.Sprintf("%v", this.EndDate) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetStockDataRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForOtherProperties := make([]string, 0, len(this.OtherProperties))
+	for k, _ := range this.OtherProperties {
+		keysForOtherProperties = append(keysForOtherProperties, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForOtherProperties)
+	mapStringForOtherProperties := "map[string]string{"
+	for _, k := range keysForOtherProperties {
+		mapStringForOtherProperties += fmt.Sprintf("%v: %v,", k, this.OtherProperties[k])
+	}
+	mapStringForOtherProperties += "}"
+	s := strings.Join([]string{`&GetStockDataRequest{`,
+		`Metric:` + fmt.Sprintf("%v", this.Metric) + `,`,
+		`DateRange:` + strings.Replace(this.DateRange.String(), "DateRange", "DateRange", 1) + `,`,
+		`StockType:` + fmt.Sprintf("%v", this.StockType) + `,`,
+		`Id:` + fmt.Sprintf("%v", this.Id) + `,`,
+		`OtherProperties:` + mapStringForOtherProperties + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *MetaData) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&MetaData{`,
+		`Metric:` + fmt.Sprintf("%v", this.Metric) + `,`,
+		`DateRange:` + strings.Replace(this.DateRange.String(), "DateRange", "DateRange", 1) + `,`,
+		`StockType:` + fmt.Sprintf("%v", this.StockType) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *RowData) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&RowData{`,
+		`DateTime:` + fmt.Sprintf("%v", this.DateTime) + `,`,
+		`Open:` + fmt.Sprintf("%v", this.Open) + `,`,
+		`High:` + fmt.Sprintf("%v", this.High) + `,`,
+		`Low:` + fmt.Sprintf("%v", this.Low) + `,`,
+		`Close:` + fmt.Sprintf("%v", this.Close) + `,`,
+		`Amount:` + fmt.Sprintf("%v", this.Amount) + `,`,
+		`Volume:` + fmt.Sprintf("%v", this.Volume) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetStockDataResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	repeatedStringForData := "[]*RowData{"
+	for _, f := range this.Data {
+		repeatedStringForData += strings.Replace(f.String(), "RowData", "RowData", 1) + ","
+	}
+	repeatedStringForData += "}"
+	s := strings.Join([]string{`&GetStockDataResponse{`,
+		`Meta:` + strings.Replace(this.Meta.String(), "MetaData", "MetaData", 1) + `,`,
+		`Data:` + repeatedStringForData + `,`,
 		`}`,
 	}, "")
 	return s
@@ -486,6 +1650,810 @@ func (m *TestResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Value = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStockData(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DateRange) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStockData
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DateRange: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DateRange: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.StartDate = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EndDate = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStockData(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetStockDataRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStockData
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetStockDataRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetStockDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Metric", wireType)
+			}
+			m.Metric = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Metric |= Metric(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DateRange", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DateRange == nil {
+				m.DateRange = &DateRange{}
+			}
+			if err := m.DateRange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StockType", wireType)
+			}
+			m.StockType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StockType |= StockType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Id = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OtherProperties", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.OtherProperties == nil {
+				m.OtherProperties = make(map[string]string)
+			}
+			var mapkey string
+			var mapvalue string
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowStockData
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowStockData
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthStockData
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthStockData
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var stringLenmapvalue uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowStockData
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapvalue := int(stringLenmapvalue)
+					if intStringLenmapvalue < 0 {
+						return ErrInvalidLengthStockData
+					}
+					postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+					if postStringIndexmapvalue < 0 {
+						return ErrInvalidLengthStockData
+					}
+					if postStringIndexmapvalue > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+					iNdEx = postStringIndexmapvalue
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipStockData(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if skippy < 0 {
+						return ErrInvalidLengthStockData
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.OtherProperties[mapkey] = mapvalue
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStockData(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MetaData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStockData
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MetaData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MetaData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Metric", wireType)
+			}
+			m.Metric = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Metric |= Metric(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DateRange", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DateRange == nil {
+				m.DateRange = &DateRange{}
+			}
+			if err := m.DateRange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StockType", wireType)
+			}
+			m.StockType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StockType |= StockType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStockData(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RowData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStockData
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RowData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RowData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DateTime", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DateTime = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Open", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Open = float64(math.Float64frombits(v))
+		case 3:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field High", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.High = float64(math.Float64frombits(v))
+		case 4:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Low", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Low = float64(math.Float64frombits(v))
+		case 5:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Close", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Close = float64(math.Float64frombits(v))
+		case 6:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Amount = float64(math.Float64frombits(v))
+		case 7:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Volume", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Volume = float64(math.Float64frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStockData(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetStockDataResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStockData
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetStockDataResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetStockDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Meta", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Meta == nil {
+				m.Meta = &MetaData{}
+			}
+			if err := m.Meta.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStockData
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStockData
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStockData
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Data = append(m.Data, &RowData{})
+			if err := m.Data[len(m.Data)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

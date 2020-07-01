@@ -10,6 +10,58 @@ message TestResponse {
     string value = 1;
 }
 
+enum Metric {
+    MetricInvalid = 0;
+    MetricOneMinute = 1;
+    MetricFiveMinutes = 2;
+    MetricThirtyMinutes = 3;
+    MetricOneHour = 4;
+    MetricTwoHours = 5;
+    MetricThreeHours = 6;
+    MetricOneDay = 7;
+}
+
+enum StockType {
+    StockTypeInvalid = 0;
+    StockTypeStock = 1;
+    StockTypeIndex = 2;
+}
+
+message DateRange {
+    string startDate = 1;
+    string endDate = 2;
+}
+
+message GetStockDataRequest {
+    Metric metric = 1;
+    DateRange dateRange = 2;
+    StockType stockType = 3;
+    string id = 4;
+    map<string, string> otherProperties = 5;
+}
+
+message MetaData {
+    Metric metric = 1;
+    DateRange dateRange = 2;
+    StockType stockType = 3;
+}
+
+message RowData {
+    string dateTime = 1;
+    double open = 2;
+    double high = 3;
+    double low = 4;
+    double close = 5;
+    double amount = 6;
+    double volume = 7;
+}
+
+message GetStockDataResponse {
+    MetaData meta = 1;
+    repeated RowData data = 2;
+}
+
 service StockData {
-    rpc Test(TestRequest) returns (TestResponse) {}
+    rpc Test(TestRequest) returns (TestResponse);
+    rpc GetStockData(GetStockDataRequest) returns (GetStockDataResponse);
 }
